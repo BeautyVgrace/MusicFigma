@@ -6,13 +6,6 @@ const Schedule = () => {
   const [schedules, setSchedules] = useState<string[]>(predefinedSchedules);
   const [newSchedule, setNewSchedule] = useState('');
 
-  const handleAddSchedule = () => {
-    if (newSchedule.trim()) {
-      setSchedules([...schedules, newSchedule.trim()]);
-      setNewSchedule('');
-    }
-  };
-
   const handleDeleteSchedule = (scheduleToDelete: string) => {
     setSchedules(schedules.filter((schedule) => schedule !== scheduleToDelete));
   };
@@ -20,19 +13,19 @@ const Schedule = () => {
   return (
     <Box
       sx={{
-        margin: '30px',
+        // marginTop: '30px',
         padding: '20px',
         backgroundColor: 'white',
         borderRadius: '8px',
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        maxWidth: '500px',
+        // maxWidth: '500px',
       }}
     >
       <Typography variant="h5" sx={{ marginBottom: '20px' }}>
         Schedule
       </Typography>
 
-      <Box sx={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+      {/* <Box sx={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
         <TextField
           label="New Schedule"
           variant="outlined"
@@ -42,7 +35,7 @@ const Schedule = () => {
         />
         <Button
           variant="contained"
-          onClick={handleAddSchedule}
+          // onClick={handleAddSchedule}
           sx={{
             backgroundColor: '#E0AC3D',
             color: 'white',
@@ -51,7 +44,7 @@ const Schedule = () => {
         >
           Add
         </Button>
-      </Box>
+      </Box> */}
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
         {schedules.map((schedule, index) => (

@@ -10,25 +10,35 @@ import Schedule from '../analytics-current-visits';
 import MusicComponent from '../analytics-news';
 import Footer from '../analytics-order-timeline';
 import Paper from '@mui/material/Paper';
+import { Box } from '@mui/material';
+import VerticalListItem from 'src/pages/list';
 
 // ----------------------------------------------------------------------
 
 export function OverviewAnalyticsView() {
   return (
     <DashboardContent maxWidth="xl">
-      <Typography variant="h4" sx={{ mb: { xs: 3, md: 5 } }}>
-        Hi, Welcome back 👋
-      </Typography>
+      <VerticalListItem />
 
       <Grid container spacing={3}>
         <Grid xs={12} md={6} lg={8}>
-          <CalendarComponent />
+          <Paper elevation={3} sx={{ p: 2 }}>
+            <CalendarComponent />
+          </Paper>
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>
-          <CustomCalendar />
-          <Schedule />
-          <MusicComponent />
+          <Paper elevation={3} sx={{ mb: 3, p: 2 }}>
+            <CustomCalendar />
+          </Paper>
+
+          <Paper elevation={3} sx={{ mb: 3, p: 2 }}>
+            <Schedule />
+          </Paper>
+
+          <Paper elevation={3} sx={{ mb: 3, p: 2 }}>
+            <MusicComponent />
+          </Paper>
         </Grid>
 
         <Grid xs={12} md={12} lg={12}>

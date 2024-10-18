@@ -6,8 +6,8 @@ const Footer = () => {
     <Box
       component="footer"
       sx={{
-        py: 3,
-        my: 4,
+        paddingTop: '0px',
+        paddingBottom: '80px',
         backgroundColor: '#f8f9fa',
         textAlign: 'center',
       }}
@@ -26,7 +26,11 @@ const Footer = () => {
       >
         {['Home', 'Features', 'Pricing', 'FAQs', 'About'].map((item) => (
           <Box component="li" sx={{ mx: 2 }} key={item}>
-            <Link href="#" variant="body2" sx={{ color: '#6c757d', textDecoration: 'none', '&:hover': { color: '#000' } }}>
+            <Link
+              href="#"
+              variant="body2"
+              sx={{ color: '#6c757d', textDecoration: 'none', '&:hover': { color: '#000' } }}
+            >
               {item}
             </Link>
           </Box>

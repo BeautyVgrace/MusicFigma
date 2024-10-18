@@ -18,26 +18,17 @@ const CustomCalendar = () => {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px',
+        // padding: '20px',
         backgroundColor: '#00000',
         borderRadius: '8px',
         boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-        margin: '50px auto',
+        // margin: '30px auto',
         maxWidth: '400px',
       }}
     >
       <Paper elevation={3} sx={{ padding: '20px', backgroundColor: 'white' }}>
         <Calendar onChange={handleDateChange} value={date} />
       </Paper>
-
-      <Box sx={{ marginTop: '20px', textAlign: 'center' }}>
-        <Typography variant="h6" sx={{ marginBottom: '5px', color: '#555' }}>
-          Selected Date:
-        </Typography>
-        <Typography variant="body1" sx={{ fontSize: '18px', color: '#333' }}>
-          {date.toDateString()}
-        </Typography>
-      </Box>
     </Box>
   );
 };

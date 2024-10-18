@@ -18,16 +18,21 @@ import {
 } from '@mui/material';
 import { CalendarToday, Close, Edit, Delete } from '@mui/icons-material';
 
-const PopupDialog = ({ open, onClose, event, addEvent }: any) => {
+interface PopupDialogProps {
+  open: any;
+  onClose: () => void;
+  title: string; // New prop for title
+}
+
+const PopupDialoglocal: React.FC<PopupDialogProps> = ({ open, onClose, title }) => {
   const handleShowMore = () => {
     const newEvent = {
       title: 'New Event from Show More',
       start: new Date(),
-      end: new Date(new Date().getTime() + 30 * 60 * 1000), // 30 minutes duration
+      end: new Date(new Date().getTime() + 30 * 60 * 1000),
     };
 
-    addEvent(newEvent);
-    onClose(); // Close the dialog after adding the event
+    onClose();
   };
 
   return (
@@ -66,7 +71,7 @@ const PopupDialog = ({ open, onClose, event, addEvent }: any) => {
             </>
           }
           title="15 November"
-          subheader="10:00 - 11:00 AM"
+          subheader="10:00 - 11:00 AM" // This can also be updated dynamically if needed
         />
         <CardContent>
           <Typography variant="h6">Upcoming song for morning prayers</Typography>
@@ -85,7 +90,7 @@ const PopupDialog = ({ open, onClose, event, addEvent }: any) => {
 
           {/* Dynamic song title based on the selected event */}
           <List sx={{ backgroundColor: '#fff8f8', borderRadius: 1, padding: 1 }}>
-            {[event?.title || 'Unknown Song'].map((song, index) => (
+            {[title].map((song, index) => (
               <ListItem key={index}>
                 <ListItemAvatar>
                   <Avatar
@@ -126,4 +131,4 @@ const PopupDialog = ({ open, onClose, event, addEvent }: any) => {
   );
 };
 
-export default PopupDialog;
+export default PopupDialoglocal;

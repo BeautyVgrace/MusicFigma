@@ -1,48 +1,66 @@
-import React, { useState } from 'react';
-import { Button, Box, Typography, IconButton, TextField } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Button, Box, Typography, IconButton } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import DeleteIcon from '@mui/icons-material/Delete';
-import PopupDialog from '../../pages/library'; // Import the PopupDialog component
 import ShareIcon from '@mui/icons-material/Share';
+import PopupDialoglocal from '../../pages/locallibrary';
+
+interface Music {
+  id: number;
+  title: string;
+  isPlaying: boolean;
+}
+
+interface Event {
+  id: number;
+  title: string;
+  isPlaying: boolean;
+}
 
 const MusicComponent = () => {
-  const [musicList, setMusicList] = useState([
+  const [musicList, setMusicList] = useState<Music[]>([
     { id: 1, title: 'Ronald rich playlist', isPlaying: false },
-    { id: 2, title: 'Another playlist', isPlaying: false },
-  ]); // Initial music list
-  const [newMusic, setNewMusic] = useState(''); // New music input state
-  const [isDialogOpen, setDialogOpen] = useState(false); // State for managing the popup dialog
+  ]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [selectedTitle, setSelectedTitle] = useState('');
 
-  // Toggle play/pause for a specific track
-  const togglePlay = (id: any) => {
+  useEffect(() => {
+    const storedEvents = localStorage.getItem('calendarEvents');
+    if (storedEvents) {
+      const parsedEvents = JSON.parse(storedEvents);
+      const eventTitles = parsedEvents.map((event: any, index: number) => ({
+        id: index + 3,
+        title: event.title,
+        isPlaying: false,
+      })) as Event[];
+      setEvents(eventTitles);
+    }
+  }, []);
+
+  const togglePlay = (id: number) => {
     setMusicList((prevList) =>
       prevList.map((music) => (music.id === id ? { ...music, isPlaying: !music.isPlaying } : music))
     );
   };
 
-  // Add new music track to the list
-  const addMusic = () => {
-    if (newMusic.trim()) {
-      const newTrack = { id: Date.now(), title: newMusic.trim(), isPlaying: false };
-      setMusicList([...musicList, newTrack]);
-      setNewMusic(''); // Clear input after adding
-    }
-  };
-
-  // Delete a music track from the list
-  const deleteMusic = (id: any) => {
+  const deleteMusic = (id: number) => {
     setMusicList(musicList.filter((music) => music.id !== id));
   };
 
-  // Open dialog
   const handleShareClick = () => {
     setDialogOpen(true);
   };
 
-  // Close dialog
+  const handleMusicClick = (title: string) => {
+    setSelectedTitle(title);
+    setDialogOpen(true);
+  };
+
   const handleCloseDialog = () => {
     setDialogOpen(false);
+    setSelectedTitle('');
   };
 
   return (
@@ -53,36 +71,13 @@ const MusicComponent = () => {
         borderRadius: 2,
         boxShadow: 3,
         fontFamily: 'Arial, sans-serif',
-        margin: '30px',
+        // marginTop: '30px',
       }}
     >
       <Typography variant="h6" sx={{ mb: 2 }}>
         Music
       </Typography>
-
-      {/* Input field to add new music */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-        <TextField
-          label="Add new music"
-          variant="outlined"
-          fullWidth
-          value={newMusic}
-          onChange={(e) => setNewMusic(e.target.value)}
-        />
-        <Button
-          variant="contained"
-          onClick={addMusic}
-          sx={{
-            backgroundColor: '#E0AC3D',
-            color: 'white',
-            '&:hover': { backgroundColor: '#e6b800' },
-          }}
-        >
-          Add
-        </Button>
-      </Box>
-
-      {/* Music list */}
+      {/* Display existing music list */}
       {musicList.map((music) => (
         <Box
           key={music.id}
@@ -95,7 +90,9 @@ const MusicComponent = () => {
             mb: 2,
             borderRadius: 1,
             boxShadow: 1,
+            cursor: 'pointer',
           }}
+          onClick={() => handleMusicClick(music.title)}
         >
           <Typography sx={{ fontWeight: 'bold', color: 'black' }}>{music.title}</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -111,7 +108,35 @@ const MusicComponent = () => {
           </Box>
         </Box>
       ))}
-
+      {events.map((event) => (
+        <Box
+          key={event.id}
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            backgroundColor: '#f0f0f0',
+            p: 2,
+            mb: 2,
+            borderRadius: 1,
+            boxShadow: 1,
+          }}
+          onClick={() => handleMusicClick(event.title)}
+        >
+          <Typography sx={{ fontWeight: 'bold', color: 'black' }}>{event.title}</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={() => togglePlay(event.id)} sx={{ color: '#ffcc00' }}>
+              {event.isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+            </IconButton>
+            <IconButton
+              onClick={() => deleteMusic(event.id)}
+              sx={{ color: '#ccc', '&:hover': { color: '#ff0000' } }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        </Box>
+      ))}
       <Button
         variant="contained"
         sx={{
@@ -119,7 +144,7 @@ const MusicComponent = () => {
           color: 'white',
           width: '50%',
           py: 1.5,
-          borderRadius: '25px', // fully rounded sides
+          borderRadius: '25px',
           boxShadow: 3,
           '&:hover': { backgroundColor: '#e6b800' },
           margin: 'auto',
@@ -127,11 +152,10 @@ const MusicComponent = () => {
         }}
         onClick={handleShareClick}
       >
-        <ShareIcon sx={{ mr: 1 }} /> {/* Adding the icon here */}
+        <ShareIcon sx={{ mr: 1 }} />
         Share
       </Button>
-
-      <PopupDialog open={isDialogOpen} onClose={handleCloseDialog} />
+      <PopupDialoglocal open={isDialogOpen} onClose={handleCloseDialog} title={selectedTitle} />
     </Box>
   );
 };

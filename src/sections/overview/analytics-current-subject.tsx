@@ -1,63 +1,148 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer, Event } from 'react-big-calendar';
 import moment from 'moment';
-import DatePicker from 'react-datepicker';
-import {
-  Box,
-  Typography,
-  Button,
-  TextField,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from '@mui/material';
+import { Box, Typography, Button, Stack } from '@mui/material';
+import PopupDialog from '../../pages/library'; // Assuming you have a dialog component for event details
+import ViewSong from '../../pages/viewsong'; // Assuming this is for adding new events
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import 'react-datepicker/dist/react-datepicker.css';
+import { styled } from '@mui/material/styles';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const localizer = momentLocalizer(moment);
 
-const CalendarComponent: React.FC = () => {
-  const [events, setEvents] = useState([
-    {
-      title: 'Jai Shree raam',
-      start: new Date(2022, 4, 27, 8, 45),
-      end: new Date(2022, 4, 27, 9, 0),
-    },
-    { title: 'Radha 2023', start: new Date(2022, 4, 27, 9, 0), end: new Date(2022, 4, 27, 9, 30) },
-    { title: 'B Prank', start: new Date(2022, 4, 27, 10, 0), end: new Date(2022, 4, 27, 10, 30) },
-  ]);
+const StyledViewButton = styled(Button)(({ theme }) => ({
+  padding: '10px',
+  color: 'black',
+  backgroundColor: 'rgb(243 244 246)',
+  borderRadius: '0px',
+  border: '0px solid grey',
+  '&:hover': {
+    backgroundColor: 'rgb(241 185 66)',
+    color: 'white',
+  },
+}));
 
-  const [newEvent, setNewEvent] = useState({ title: '', start: new Date(), end: new Date() });
-  const [open, setOpen] = useState(false);
+const CustomToolbar = ({
+  toolbar,
+  handleOpenAddSchedule,
+}: {
+  toolbar: any;
+  handleOpenAddSchedule: () => void;
+}) => {
+  const goToBack = () => {
+    toolbar.onNavigate('PREV');
+  };
+
+  const goToNext = () => {
+    toolbar.onNavigate('NEXT');
+  };
+
+  const changeView = (view: string) => {
+    toolbar.onView(view); // Updated this line to use onView
+  };
+
+  return (
+    <Stack sx={{ justifyContent: 'space-between', alignItems: 'self-start', flexDirection: 'row' }}>
+      <Stack sx={{ flexDirection: 'row' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'start',
+            justifyContent: 'center',
+            mb: 2,
+            marginRight: '20px',
+          }}
+        >
+          <Button onClick={goToBack} startIcon={<KeyboardArrowLeftIcon />} sx={{ mr: 1 }}></Button>
+          <Typography variant="h6">{moment(toolbar.date).format('MMMM YYYY')}</Typography>
+          <Button onClick={goToNext} endIcon={<ChevronRightIcon />} sx={{ ml: 1 }}></Button>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+          <StyledViewButton onClick={() => changeView('day')}>Day</StyledViewButton>
+          <StyledViewButton onClick={() => changeView('week')}>Week</StyledViewButton>
+          <StyledViewButton onClick={() => changeView('month')}>Month</StyledViewButton>
+        </Box>
+      </Stack>
+      <Box>
+        <Button
+          variant="contained"
+          sx={{
+            backgroundColor: '#E0AC3D',
+            borderRadius: '30px',
+            '&:hover': { backgroundColor: '#c09031' },
+            marginLeft: '20px',
+          }}
+          onClick={handleOpenAddSchedule}
+        >
+          + Schedule session
+        </Button>
+      </Box>
+    </Stack>
+  );
+};
+
+const CalendarComponent: React.FC = () => {
+  const loadEventsFromLocalStorage = (): Event[] => {
+    const storedEvents = localStorage.getItem('calendarEvents');
+    const events = storedEvents
+      ? JSON.parse(storedEvents)
+      : [
+          {
+            title: 'Jai Shree Raam',
+            start: new Date(2024, 9, 27, 8, 45),
+            end: new Date(2024, 9, 27, 9, 0),
+          },
+          {
+            title: 'Kesariya',
+            start: new Date(2024, 9, 3, 10, 0),
+            end: new Date(2024, 9, 3, 10, 30),
+          },
+        ];
+
+    console.log('Loaded Events:', events);
+    return events;
+  };
+
+  const [events, setEvents] = useState<Event[]>(loadEventsFromLocalStorage);
+  const [openPopupDialog, setOpenPopupDialog] = useState(false);
+  const [openAddSchedule, setOpenAddSchedule] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
-  const handleAddEvent = () => {
-    setEvents([...events, newEvent]);
-    setNewEvent({ title: '', start: new Date(), end: new Date() });
-    setOpen(false);
+  useEffect(() => {
+    localStorage.setItem('calendarEvents', JSON.stringify(events));
+  }, [events]);
+
+  const handleOpenAddSchedule = () => {
+    setOpenAddSchedule(true);
   };
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
+  const handleCloseAddSchedule = () => {
+    setOpenAddSchedule(false);
   };
 
   const handleSelectEvent = (event: Event) => {
     setSelectedEvent(event);
+    setOpenPopupDialog(true);
+  };
+
+  const handleClosePopupDialog = () => {
+    setOpenPopupDialog(false);
+  };
+
+  const addEvent = (newEvent: Event) => {
+    setEvents((prevEvents) => [...prevEvents, newEvent]);
+    window.location.reload();
   };
 
   return (
     <Box
       sx={{
         padding: '20px',
-        backgroundColor: '#00000',
+        backgroundColor: '#ffffff',
         borderRadius: '8px',
         boxShadow: 3,
-        margin: '50px auto',
+        margin: '30px auto',
         maxWidth: '900px',
       }}
     >
@@ -67,85 +152,40 @@ const CalendarComponent: React.FC = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: '20px',
+          padding: '20px 20px 10px 20px;',
+          borderBottom: '1px solid grey',
         }}
       >
         <Typography variant="h4" component="h2">
           Calendar
         </Typography>
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: '#E0AC3D',
-            borderRadius: '30px',
-            '&:hover': { backgroundColor: '#c09031' },
-          }}
-          onClick={handleClickOpen}
-        >
-          + Schedule session
-        </Button>
       </Box>
 
-      {/* Form for adding new event */}
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Add Event</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Event Title"
-            fullWidth
-            value={newEvent.title}
-            onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-            sx={{ marginBottom: 2 }}
-          />
-          <Typography>Start Date & Time:</Typography>
-          <DatePicker
-            selected={newEvent.start}
-            onChange={(start) => setNewEvent({ ...newEvent, start: start ?? new Date() })}
-            showTimeSelect
-            timeFormat="HH:mm"
-            timeIntervals={15}
-            dateFormat="MMMM d, yyyy h:mm aa"
-            placeholderText="Start Date & Time"
-            customInput={<TextField fullWidth />}
-            sx={{ marginBottom: 2 }}
-          />
-          <Typography>End Date & Time:</Typography>
-          <DatePicker
-            selected={newEvent.end}
-            onChange={(end) => setNewEvent({ ...newEvent, end: end ?? new Date() })}
-            showTimeSelect
-            timeFormat="HH:mm"
-            timeIntervals={15}
-            dateFormat="MMMM d, yyyy h:mm aa"
-            placeholderText="End Date & Time"
-            customInput={<TextField fullWidth />}
-            sx={{ marginBottom: 2 }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} sx={{ color: '#E0AC3D' }}>
-            Cancel
-          </Button>
-          <Button onClick={handleAddEvent} sx={{ color: '#E0AC3D' }}>
-            Add Event
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Calendar view */}
       <Calendar
         localizer={localizer}
         events={events}
         startAccessor="start"
         endAccessor="end"
-        style={{ height: 500, marginTop: '50px' }}
+        style={{ height: 500, marginTop: '20px' }}
         onSelectEvent={handleSelectEvent}
-        eventPropGetter={(event: any) => ({
-          style: {
-            backgroundColor: event === selectedEvent ? '#E0AC3D' : '',
-            color: event === selectedEvent ? 'white' : '',
-          },
-        })}
+        views={['day', 'week', 'month']}
+        defaultView="month"
+        components={{
+          toolbar: (toolbar: any) => (
+            <CustomToolbar toolbar={toolbar} handleOpenAddSchedule={handleOpenAddSchedule} />
+          ), // Pass handleOpenAddSchedule as a prop
+        }}
       />
+
+      <ViewSong open={openAddSchedule} onClose={handleCloseAddSchedule} addEvent={addEvent} />
+
+      {selectedEvent && (
+        <PopupDialog
+          open={openPopupDialog}
+          onClose={handleClosePopupDialog}
+          event={selectedEvent}
+        />
+      )}
     </Box>
   );
 };
